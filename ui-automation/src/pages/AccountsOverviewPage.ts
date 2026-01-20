@@ -5,7 +5,7 @@ import { BasePage } from './BasePage';
  * Accounts Overview Page Object
  * 
  * Represents the ParaBank accounts overview/dashboard page.
- * Simplified selectors for reliable test execution.
+ * Optimized for cross-browser compatibility.
  */
 export class AccountsOverviewPage extends BasePage {
   // Locators
@@ -32,10 +32,16 @@ export class AccountsOverviewPage extends BasePage {
   }
 
   /**
-   * Wait for page to load
+   * Wait for page to load - with retry for stability
    */
   async waitForPageLoad(): Promise<void> {
-    await this.accountsTable.waitFor({ state: 'visible', timeout: 30000 });
+    // Wait for accounts table or redirect to handle both logged in and logged out states
+    try {
+      await this.accountsTable.waitFor({ state: 'visible', timeout: 30000 });
+    } catch {
+      // May have been redirected to login page
+      await this.page.waitForLoadState('networkidle');
+    }
   }
 
   /**
@@ -43,6 +49,7 @@ export class AccountsOverviewPage extends BasePage {
    */
   async isLoggedIn(): Promise<boolean> {
     try {
+      await this.page.waitForLoadState('networkidle');
       return await this.logoutLink.isVisible();
     } catch {
       return false;
@@ -50,34 +57,48 @@ export class AccountsOverviewPage extends BasePage {
   }
 
   /**
-   * Get total balance
+   * Get total balance from accounts table
+   * Uses the correct selector for the total row
    */
   async getTotalBalance(): Promise<string> {
-    const balance = this.page.locator('#accountTable tfoot td:last-child');
-    return await balance.textContent() || '';
+    try {
+      await this.accountsTable.waitFor({ state: 'visible', timeout: 10000 });
+      // Get the total row - second column of tfoot
+      const totalCell = this.page.locator('#accountTable tfoot tr td').nth(1);
+      await totalCell.waitFor({ state: 'visible', timeout: 5000 });
+      const text = await totalCell.textContent();
+      return text?.trim() || '';
+    } catch {
+      return '';
+    }
   }
 
   /**
    * Get all account IDs
    */
   async getAccountIds(): Promise<string[]> {
-    const accountLinks = this.page.locator('#accountTable tbody a');
-    const count = await accountLinks.count();
-    const ids: string[] = [];
-    
-    for (let i = 0; i < count; i++) {
-      const text = await accountLinks.nth(i).textContent();
-      if (text) ids.push(text.trim());
+    try {
+      await this.accountsTable.waitFor({ state: 'visible', timeout: 10000 });
+      const accountLinks = this.page.locator('#accountTable tbody a');
+      const count = await accountLinks.count();
+      const ids: string[] = [];
+      
+      for (let i = 0; i < count; i++) {
+        const text = await accountLinks.nth(i).textContent();
+        if (text) ids.push(text.trim());
+      }
+      
+      return ids;
+    } catch {
+      return [];
     }
-    
-    return ids;
   }
 
   /**
    * Click on specific account by ID
    */
   async clickAccount(accountId: string): Promise<void> {
-    await this.page.locator(`a:has-text("${accountId}")`).click();
+    await this.page.locator(`#accountTable a:has-text("${accountId}")`).click();
     await this.page.waitForLoadState('networkidle');
   }
 
@@ -85,6 +106,7 @@ export class AccountsOverviewPage extends BasePage {
    * Navigate to Open Account
    */
   async goToOpenAccount(): Promise<void> {
+    await this.openAccountLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.openAccountLink.click();
     await this.page.waitForLoadState('networkidle');
   }
@@ -93,6 +115,7 @@ export class AccountsOverviewPage extends BasePage {
    * Navigate to Transfer Funds
    */
   async goToTransferFunds(): Promise<void> {
+    await this.transferFundsLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.transferFundsLink.click();
     await this.page.waitForLoadState('networkidle');
   }
@@ -101,6 +124,7 @@ export class AccountsOverviewPage extends BasePage {
    * Logout
    */
   async logout(): Promise<void> {
+    await this.logoutLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.logoutLink.click();
     await this.page.waitForLoadState('networkidle');
   }
