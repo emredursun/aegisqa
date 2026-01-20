@@ -30,7 +30,9 @@ export class LoginPage extends BasePage {
    * Navigate to login page
    */
   async goto(): Promise<void> {
-    await this.page.goto('/', { waitUntil: 'networkidle', timeout: 30000 });
+    // Use absolute URL to avoid baseURL resolution issues with local Docker
+    const baseURL = process.env.PARABANK_URL || 'http://localhost:8080/parabank';
+    await this.page.goto(`${baseURL}/index.htm`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await this.waitForPageLoad();
   }
 
@@ -69,7 +71,7 @@ export class LoginPage extends BasePage {
     await this.enterUsername(username);
     await this.enterPassword(password);
     await this.clickLogin();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -100,6 +102,6 @@ export class LoginPage extends BasePage {
    */
   async clickRegister(): Promise<void> {
     await this.registerLink.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 }

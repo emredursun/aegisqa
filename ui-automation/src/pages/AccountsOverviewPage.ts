@@ -27,7 +27,9 @@ export class AccountsOverviewPage extends BasePage {
    * Navigate to accounts overview
    */
   async goto(): Promise<void> {
-    await this.page.goto('/overview.htm', { waitUntil: 'networkidle' });
+    // Use absolute URL to avoid baseURL resolution issues with local Docker
+    const baseURL = process.env.PARABANK_URL || 'http://localhost:8080/parabank';
+    await this.page.goto(`${baseURL}/overview.htm`, { waitUntil: 'domcontentloaded' });
     await this.waitForPageLoad();
   }
 
@@ -40,7 +42,7 @@ export class AccountsOverviewPage extends BasePage {
       await this.accountsTable.waitFor({ state: 'visible', timeout: 30000 });
     } catch {
       // May have been redirected to login page
-      await this.page.waitForLoadState('networkidle');
+      await this.page.waitForLoadState('domcontentloaded');
     }
   }
 
@@ -49,7 +51,7 @@ export class AccountsOverviewPage extends BasePage {
    */
   async isLoggedIn(): Promise<boolean> {
     try {
-      await this.page.waitForLoadState('networkidle');
+      await this.page.waitForLoadState('domcontentloaded');
       return await this.logoutLink.isVisible();
     } catch {
       return false;
@@ -99,7 +101,7 @@ export class AccountsOverviewPage extends BasePage {
    */
   async clickAccount(accountId: string): Promise<void> {
     await this.page.locator(`#accountTable a:has-text("${accountId}")`).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -108,7 +110,7 @@ export class AccountsOverviewPage extends BasePage {
   async goToOpenAccount(): Promise<void> {
     await this.openAccountLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.openAccountLink.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -117,7 +119,7 @@ export class AccountsOverviewPage extends BasePage {
   async goToTransferFunds(): Promise<void> {
     await this.transferFundsLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.transferFundsLink.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -126,6 +128,6 @@ export class AccountsOverviewPage extends BasePage {
   async logout(): Promise<void> {
     await this.logoutLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.logoutLink.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 }
