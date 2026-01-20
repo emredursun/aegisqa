@@ -5,33 +5,32 @@ import { BasePage } from './BasePage';
  * Login Page Object
  * 
  * Represents the ParaBank login page with all interactions.
+ * Simplified selectors for reliable test execution.
  */
 export class LoginPage extends BasePage {
-  // Locators
+  // Locators - simplified for reliability
   private readonly usernameInput: Locator;
   private readonly passwordInput: Locator;
   private readonly loginButton: Locator;
   private readonly registerLink: Locator;
   private readonly errorMessage: Locator;
-  private readonly forgotLoginLink: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    // Initialize locators
+    // Simple, reliable selectors
     this.usernameInput = page.locator('input[name="username"]');
     this.passwordInput = page.locator('input[name="password"]');
     this.loginButton = page.locator('input[value="Log In"]');
-    this.registerLink = page.locator('a[href*="register"]');
-    this.errorMessage = page.locator('.error');
-    this.forgotLoginLink = page.locator('a[href*="lookup"]');
+    this.registerLink = page.locator('a:has-text("Register")');
+    this.errorMessage = page.locator('.error, p.error');
   }
 
   /**
    * Navigate to login page
    */
   async goto(): Promise<void> {
-    await this.page.goto('/index.htm');
+    await this.page.goto('/', { waitUntil: 'networkidle', timeout: 30000 });
     await this.waitForPageLoad();
   }
 
@@ -39,29 +38,28 @@ export class LoginPage extends BasePage {
    * Wait for login page to load
    */
   async waitForPageLoad(): Promise<void> {
-    await this.waitForVisible(this.usernameInput);
-    await this.waitForVisible(this.loginButton);
+    await this.usernameInput.waitFor({ state: 'visible', timeout: 30000 });
   }
 
   /**
    * Enter username
    */
   async enterUsername(username: string): Promise<void> {
-    await this.safeFill(this.usernameInput, username);
+    await this.usernameInput.fill(username);
   }
 
   /**
    * Enter password
    */
   async enterPassword(password: string): Promise<void> {
-    await this.safeFill(this.passwordInput, password);
+    await this.passwordInput.fill(password);
   }
 
   /**
    * Click login button
    */
   async clickLogin(): Promise<void> {
-    await this.safeClick(this.loginButton);
+    await this.loginButton.click();
   }
 
   /**
@@ -71,37 +69,37 @@ export class LoginPage extends BasePage {
     await this.enterUsername(username);
     await this.enterPassword(password);
     await this.clickLogin();
-    await this.waitForNetworkIdle();
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
    * Get error message text
    */
   async getErrorMessage(): Promise<string> {
-    if (await this.isVisible(this.errorMessage)) {
-      return this.getText(this.errorMessage);
+    try {
+      await this.errorMessage.waitFor({ state: 'visible', timeout: 5000 });
+      return await this.errorMessage.textContent() || '';
+    } catch {
+      return '';
     }
-    return '';
   }
 
   /**
    * Check if login page is displayed
    */
   async isDisplayed(): Promise<boolean> {
-    return this.isVisible(this.loginButton);
+    try {
+      return await this.loginButton.isVisible();
+    } catch {
+      return false;
+    }
   }
 
   /**
    * Click register link
    */
   async clickRegister(): Promise<void> {
-    await this.safeClick(this.registerLink);
-  }
-
-  /**
-   * Click forgot login info link
-   */
-  async clickForgotLogin(): Promise<void> {
-    await this.safeClick(this.forgotLoginLink);
+    await this.registerLink.click();
+    await this.page.waitForLoadState('networkidle');
   }
 }

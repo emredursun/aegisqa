@@ -5,43 +5,29 @@ import { BasePage } from './BasePage';
  * Accounts Overview Page Object
  * 
  * Represents the ParaBank accounts overview/dashboard page.
+ * Simplified selectors for reliable test execution.
  */
 export class AccountsOverviewPage extends BasePage {
   // Locators
-  private readonly welcomeMessage: Locator;
   private readonly accountsTable: Locator;
-  private readonly totalBalance: Locator;
   private readonly logoutLink: Locator;
-  
-  // Navigation links
   private readonly openAccountLink: Locator;
   private readonly transferFundsLink: Locator;
-  private readonly billPayLink: Locator;
-  private readonly findTransactionsLink: Locator;
-  private readonly requestLoanLink: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    // Initialize locators
-    this.welcomeMessage = page.locator('#leftPanel .smallText');
     this.accountsTable = page.locator('#accountTable');
-    this.totalBalance = page.locator('#accountTable tfoot td:nth-child(2)');
-    this.logoutLink = page.locator('a[href*="logout"]');
-    
-    // Navigation
-    this.openAccountLink = page.locator('a[href*="openaccount"]');
-    this.transferFundsLink = page.locator('a[href*="transfer"]');
-    this.billPayLink = page.locator('a[href*="billpay"]');
-    this.findTransactionsLink = page.locator('a[href*="findtrans"]');
-    this.requestLoanLink = page.locator('a[href*="requestloan"]');
+    this.logoutLink = page.locator('a:has-text("Log Out")');
+    this.openAccountLink = page.locator('a:has-text("Open New Account")');
+    this.transferFundsLink = page.locator('a:has-text("Transfer Funds")');
   }
 
   /**
    * Navigate to accounts overview
    */
   async goto(): Promise<void> {
-    await this.page.goto('/overview.htm');
+    await this.page.goto('/overview.htm', { waitUntil: 'networkidle' });
     await this.waitForPageLoad();
   }
 
@@ -49,28 +35,26 @@ export class AccountsOverviewPage extends BasePage {
    * Wait for page to load
    */
   async waitForPageLoad(): Promise<void> {
-    await this.waitForVisible(this.accountsTable);
+    await this.accountsTable.waitFor({ state: 'visible', timeout: 30000 });
   }
 
   /**
-   * Check if user is logged in (page is displayed)
+   * Check if user is logged in
    */
   async isLoggedIn(): Promise<boolean> {
-    return this.isVisible(this.logoutLink);
-  }
-
-  /**
-   * Get welcome message
-   */
-  async getWelcomeMessage(): Promise<string> {
-    return this.getText(this.welcomeMessage);
+    try {
+      return await this.logoutLink.isVisible();
+    } catch {
+      return false;
+    }
   }
 
   /**
    * Get total balance
    */
   async getTotalBalance(): Promise<string> {
-    return this.getText(this.totalBalance);
+    const balance = this.page.locator('#accountTable tfoot td:last-child');
+    return await balance.textContent() || '';
   }
 
   /**
@@ -94,46 +78,30 @@ export class AccountsOverviewPage extends BasePage {
    */
   async clickAccount(accountId: string): Promise<void> {
     await this.page.locator(`a:has-text("${accountId}")`).click();
-    await this.waitForNetworkIdle();
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
    * Navigate to Open Account
    */
   async goToOpenAccount(): Promise<void> {
-    await this.safeClick(this.openAccountLink);
-    await this.waitForNetworkIdle();
+    await this.openAccountLink.click();
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
    * Navigate to Transfer Funds
    */
   async goToTransferFunds(): Promise<void> {
-    await this.safeClick(this.transferFundsLink);
-    await this.waitForNetworkIdle();
-  }
-
-  /**
-   * Navigate to Bill Pay
-   */
-  async goToBillPay(): Promise<void> {
-    await this.safeClick(this.billPayLink);
-    await this.waitForNetworkIdle();
-  }
-
-  /**
-   * Navigate to Request Loan
-   */
-  async goToRequestLoan(): Promise<void> {
-    await this.safeClick(this.requestLoanLink);
-    await this.waitForNetworkIdle();
+    await this.transferFundsLink.click();
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
    * Logout
    */
   async logout(): Promise<void> {
-    await this.safeClick(this.logoutLink);
-    await this.waitForNetworkIdle();
+    await this.logoutLink.click();
+    await this.page.waitForLoadState('networkidle');
   }
 }
