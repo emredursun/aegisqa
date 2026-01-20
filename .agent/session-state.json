@@ -4,7 +4,7 @@
     "description": "AI-Driven Full Stack Test Automation Platform",
     "version": "0.1.0",
     "created": "2026-01-20",
-    "repository": null
+    "repository": "https://github.com/emredursun/aegisqa"
   },
   "session": {
     "current_id": 1,
