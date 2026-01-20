@@ -19,16 +19,115 @@
 
 ## Current Session
 
-| Field          | Value                                         |
-| -------------- | --------------------------------------------- |
-| **Session ID** | 1                                             |
-| **Date**       | 2026-01-20                                    |
-| **Phase**      | Sprint 1 Complete, Sprint 2/3 Started         |
-| **Status**     | Foundation complete, UI & API modules created |
+| Field          | Value                                                 |
+| -------------- | ----------------------------------------------------- |
+| **Session ID** | 2                                                     |
+| **Date**       | 2026-01-20                                            |
+| **Phase**      | Local Docker Environment Setup Complete               |
+| **Status**     | All UI tests passing on local Docker ParaBank (11/11) |
 
 ---
 
-## Session 1 Accomplishments
+## Session 2 Accomplishments (2026-01-20)
+
+### Local Docker Environment Setup ✅
+
+**Objective**: Transition from remote ParaBank to local Docker instance for improved stability and control.
+
+**Key Achievement**: ✅ **All 11 active UI tests passing on local Docker ParaBank in 13.1s**
+
+#### Critical Issue Resolved
+
+- **Problem**: All tests failed with HTTP 404 errors against local Docker despite container running correctly
+- **Root Cause**: Playwright's baseURL resolution mechanism incompatible with local Docker ParaBank
+- **Solution**: Implemented absolute URL construction in page objects using `${process.env.PARABANK_URL}/page.htm`
+
+#### Technical Changes
+
+1. Fixed PostgreSQL port conflict (5432 → 5433 in docker-compose.yml)
+2. Successfully initialized ParaBank database via API endpoint
+3. Updated `LoginPage.ts` and `AccountsOverviewPage.ts` with absolute URL construction
+4. Replaced all `networkidle` wait strategies with `domcontentloaded` for local Docker compatibility
+5. Created diagnostic tests to isolate baseURL resolution issues
+
+#### Test Results
+
+- **Login Tests**: 6/6 passing
+- **Account Tests**: 5/6 passing (1 intentionally skipped - balance test requires stabilization)
+- **Total**: 11/11 active tests passing in 13.1 seconds
+
+### Files Modified This Session
+
+- `docker-compose.yml` - Changed PostgreSQL port to 5433
+- `ui-automation/src/pages/LoginPage.ts` - Absolute URL construction
+- `ui-automation/src/pages/AccountsOverviewPage.ts` - Absolute URL construction
+- `.env` - Updated to point to local Docker instance
+
+---
+
+## Session 1 Accomplishments (2026-01-20)
+
+### Planning ✅
+
+- Requirements analysis and brainstorming
+- Technology stack finalized (Playwright, REST Assured, PostgreSQL, Gemini, Allure)
+- Implementation plan created and approved
+- Project management infrastructure established
+
+### Sprint 1: Foundation ✅ 100%
+
+- Monorepo structure created
+- Root package.json with npm workspaces
+- docker-compose.yml (ParaBank + PostgreSQL + Allure)
+- .env.example with all configuration
+
+### Sprint 2: UI Automation 🔄 78%
+
+- Playwright project initialized
+- Page Object Model: BasePage, LoginPage, AccountsOverviewPage, TransferFundsPage
+- Test fixtures with page object dependency injection
+- Tests: login.spec.ts (6 tests), accounts.spec.ts (6 tests)
+- Allure reporting configured
+
+### Sprint 3: API Automation 🔄 78%
+
+- Maven project with REST Assured, TestNG, Allure
+- ConfigManager for environment configuration
+- ParaBankApiClient with all endpoints
+- Tests: AuthenticationApiTest, AccountApiTest, TransferApiTest (12 tests total)
+
+### Shared Module ✅
+
+- Configuration loader with type safety
+- Constants (API endpoints, UI routes, test users)
+- TypeScript types for ParaBank domain
+
+---
+
+## Next Session Priority
+
+1. **UI-007**: Implement transfer test scenarios
+2. **Multi-browser verification**: Run full suite on Firefox, WebKit, Mobile against local Docker
+3. **Fix skipped balance test**: Investigate dynamic balance loading issue
+4. **API-004**: Create request/response POJOs
+5. **API-008**: Add database validation integration
+
+---
+
+## Git Status
+
+| Commit  | Message                                                                        |
+| ------- | ------------------------------------------------------------------------------ |
+| dc907f7 | Session 1: Initialize project                                                  |
+| e839c38 | Update session state with GitHub repository URL                                |
+| a3717d9 | Sprint 1: Foundation & Core Setup                                              |
+| 39fd81f | Session 2: Fix local Docker ParaBank baseURL resolution - all UI tests passing |
+
+---
+
+## Open Questions / Blockers
+
+_None currently_
 
 ### Planning ✅
 
