@@ -1,0 +1,28 @@
+{
+  "name": "@aegisqa/ui-automation",
+  "version": "0.1.0",
+  "description": "UI Test Automation with Playwright",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "report": "playwright show-report",
+    "allure:generate": "allure generate ./allure-results -o ./allure-report --clean",
+    "allure:serve": "allure serve ./allure-results"
+  },
+  "dependencies": {
+    "@aegisqa/shared": "*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.41.0",
+    "@types/node": "^20.11.0",
+    "allure-playwright": "^2.15.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.3.3"
+  }
+}

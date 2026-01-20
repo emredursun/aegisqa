@@ -1,0 +1,37 @@
+{
+  "name": "aegisqa",
+  "version": "0.1.0",
+  "description": "AI-Driven Full Stack Test Automation Platform",
+  "private": true,
+  "workspaces": [
+    "ui-automation",
+    "db-automation",
+    "ai-engine",
+    "shared"
+  ],
+  "scripts": {
+    "test:ui": "npm run test --workspace=ui-automation",
+    "test:db": "npm run test --workspace=db-automation",
+    "ai:generate": "npm run generate --workspace=ai-engine",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "report": "allure serve reports/allure-results"
+  },
+  "keywords": [
+    "test-automation",
+    "playwright",
+    "rest-assured",
+    "ai",
+    "gemini",
+    "allure"
+  ],
+  "author": "Emre Dursun <info.emredursun@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emredursun/aegisqa.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

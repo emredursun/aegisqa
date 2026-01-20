@@ -1,0 +1,62 @@
+services:
+  # ParaBank Demo Application
+  parabank:
+    image: parasoft/parabank:latest
+    container_name: aegisqa-parabank
+    ports:
+      - "8080:8080"
+    environment:
+      - CATALINA_OPTS=-Xmx512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/parabank"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - aegisqa-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: aegisqa-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-aegisqa}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aegisqa_pass}
+      POSTGRES_DB: ${DB_NAME:-aegisqa_test}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-automation/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-aegisqa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aegisqa-network
+
+  # Allure Report Server (optional)
+  allure:
+    image: frankescobar/allure-docker-service:latest
+    container_name: aegisqa-allure
+    ports:
+      - "5050:5050"
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 5
+      KEEP_HISTORY: 1
+    volumes:
+      - ./reports/allure-results:/app/allure-results
+      - ./reports/allure-reports:/app/default-reports
+    networks:
+      - aegisqa-network
+    profiles:
+      - reporting
+
+networks:
+  aegisqa-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
