@@ -1,0 +1,25 @@
+{
+  "project": {
+    "name": "AegisQA",
+    "description": "AI-Driven Full Stack Test Automation Platform",
+    "version": "0.1.0",
+    "created": "2026-01-20",
+    "repository": null
+  },
+  "session": {
+    "current_id": 1,
+    "last_active": "2026-01-20T16:18:30+01:00",
+    "status": "active"
+  },
+  "sprint": {
+    "current": 1,
+    "name": "Foundation & Core Setup",
+    "start_date": "2026-01-20",
+    "end_date": null
+  },
+  "progress": {
+    "phases_completed": [],
+    "current_phase": "Foundation",
+    "blockers": []
+  }
+}
